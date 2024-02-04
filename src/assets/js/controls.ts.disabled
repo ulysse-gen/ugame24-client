@@ -1,0 +1,23 @@
+import store from "@/store";
+import _ from "lodash";
+
+var moveUp = [90, 38]; // default Z
+var moveDown = [83, 40]; // default S
+var moveLeft = [81, 37]; // default Q
+var moveRight = [68, 39]; // default D
+var shiftKey = [16]; // default Space
+
+$('#canvasGame').on('click', async (ClickEvent) => {
+    const Client = store.state.client;
+    if (!Client || !Client.Character)return;
+    var playerCenter = { x: Client.Character.DisplayCharacter.position.x+Client.Character.DisplayCharacter.size.x/2, y: Client.Character.DisplayCharacter.position.y+Client.Character.DisplayCharacter.size.y/2};
+    var mouseScreenPos = { x: ClickEvent.clientX - (ClickEvent.target as HTMLCanvasElement).width/2, y: ClickEvent.clientY - (ClickEvent.target as HTMLCanvasElement).height/2};
+    var mouseCanvasPos = { x: playerCenter.x+mouseScreenPos.x, y: playerCenter.y+mouseScreenPos.y};
+    if (store.state.socket)store.state.socket.emit('send-spell', { pos: mouseCanvasPos, spell: 0 });
+});
+
+
+
+
+
+
