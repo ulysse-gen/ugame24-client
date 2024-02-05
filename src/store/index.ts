@@ -27,9 +27,9 @@ export default createStore({
   },
   actions: {
     ConnectToServer() {
-      this.state.socket = io('http://localhost:669', {
+      this.state.socket = io((process.env.VUE_APP_SOCKET_URL || "http://localhost") + ":" + (process.env.VUE_APP_SOCKET_PORT || "669"), {
         auth: {
-          token: "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJpYXQiOjE3MDY5OTA5OTgsImV4cCI6MTcxNDc2Njk5OH0.7O-b57btCWEBfjiI2c9MXciM6GHc51HtcINg8a-REasnmgD65597v2XykIyvMFbE8Ke25fcEZFypCACQTiSqMg"
+          token: process.env.VUE_APP_TOKEN
         }
       })
     },
