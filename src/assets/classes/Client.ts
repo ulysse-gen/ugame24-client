@@ -6,7 +6,7 @@ import _ from 'lodash';
 
 export default class Client {
     public username!: string;
-    public pseudo!: boolean;
+    public pseudo!: string;
 
     public Character?: Character;
 
@@ -17,7 +17,18 @@ export default class Client {
     FromServer(Client: uGameClient.Client, RecreateCharacter = true) {
         this.username = Client.username;
         this.pseudo = Client.pseudo
-        if (Client.Character)this.Character = new Character(this).FromServer(Client.Character);
+        if (Client.Character && (!this.Character || RecreateCharacter))this.Character = new Character(this).FromServer(Client.Character);
         return this;
+    }
+    
+    Refresh(Client: uGameClient.Client) {
+        if (!Client)return;
+        this.username = Client.username;
+        this.pseudo = Client.pseudo;
+
+        if (!this.Character || !Client.Character)return;
+        this.Character.position.set(Client.Character.position);
+        this.Character.imgUrl = Client.Character.imgUrl;
+        this.Character.size.set(Client.Character.size);
     }
 }

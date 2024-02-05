@@ -1,3 +1,4 @@
+import store from "@/store";
 import Character from "./Character";
 import Vector2D from "./Vector2D";
 

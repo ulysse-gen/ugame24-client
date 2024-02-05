@@ -5,14 +5,14 @@ export namespace uGameClient {
         id: number;
         username: string;
         role: string;
-        pseudo: boolean;
+        pseudo: string;
     
         Character?: SelfCharacter;
     }
 
     interface Client {
         username: string;
-        pseudo: boolean;
+        pseudo: string;
     
         Character?: Character;
     }

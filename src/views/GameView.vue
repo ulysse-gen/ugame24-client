@@ -19,13 +19,10 @@ import { defineComponent } from 'vue';
 export default defineComponent({
   name: 'GameView',
   async mounted() {
-      await store.dispatch("ConnectToServer");
-      await store.dispatch("AttachEvents");
       store.commit("CanvasSet", document.getElementById("GameCanvas"));
       if (store.state.map)store.state.map.image.onload = () => {
         if (!store.state.map)return;
         store.state.map.isLoaded = true;
-        store.state.map.Draw();
       }
       this.Tick();
   },
@@ -42,6 +39,14 @@ export default defineComponent({
 
       if (store.state.map && store.state.map.isLoaded)store.state.map.Draw(); 
       if (store.state.client && store.state.client.Character && store.state.client.Character.DisplayCharacter && store.state.client.Character.DisplayCharacter.isLoaded)store.state.client.Character.Tick();
+      store.state.clients.forEach(otherPlayer => {
+        if (!otherPlayer.Character || !otherPlayer.Character.DisplayCharacter || !otherPlayer.Character.DisplayCharacter.isLoaded || !store.state.context)return;
+          store.state.context.font = "20px Arial";
+          store.state.context.fillStyle = 'black';
+          store.state.context.textAlign = "center";
+          store.state.context.fillText(otherPlayer.pseudo, otherPlayer.Character.position.x+(otherPlayer.Character.size.x/2), otherPlayer.Character.position.y-20);
+          otherPlayer.Character.DisplayCharacter.Draw();
+      });
       setTimeout(this.Tick.bind(this), 16.6);
     }
   }
@@ -81,4 +86,9 @@ window.addEventListener("blur", () => {
   
   <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+.game {
+  position: absolute;
+  height: 100vh;
+  width: 100vw;
+}
 </style>
