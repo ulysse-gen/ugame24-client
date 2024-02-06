@@ -1,83 +1,74 @@
 import { uGameClient } from '@/types/ugame-client'
 import { Socket, io } from 'socket.io-client'
 import { createStore } from 'vuex'
-import GameMap, { DisplayCharacter } from "@/assets/classes/ImagesHelper"
+import GameMap from "@/assets/classes/ImagesHelper"
 import Client from '@/assets/classes/Client'
-import Character from '@/assets/classes/Character'
+import uGame from '@/assets/classes/uGame'
 
 export default createStore({
   state: {
-    socket: undefined as Socket | undefined,
-    client: undefined as Client | undefined,
-    clients: new Map as Map<string, Client>,
-    canvas: null as null | HTMLCanvasElement,
-    context: null as null | CanvasRenderingContext2D,
-    map: null as null | GameMap,
-    connected: false
+    uGame: new uGame()
   },
   getters: {
-    mapLoaded(state) {
-      return (state.map && state.map && state.map.isLoaded);
-    },
-    loggedIn(state) {
-      return state.client instanceof Client;
-    },
-    connected(state) {
-      return state.connected
-    }
+    uGame: (state) => state.uGame,
+    connected: (state) => state.uGame.connected,
+    mapLoaded: (state) => state.uGame.Map && state.uGame.Map.isLoaded,
+    loggedIn: (state) => (state.uGame.Socket != undefined)
   },
   mutations: {
     Disconnected(state) {
-      state.connected = false;
-      state.clients.clear();
+      state.uGame.Clients.clear();
+      state.uGame.connected = false;
     },
     Connected(state) {
-      if (!state.socket)return;
-      state.connected = true;
+      state.uGame.connected = true;
     },
     ClientSet(state, client: uGameClient.SelfClient) {
-      state.client = new Client().FromServer(client);
+      state.uGame.Client = new Client().FromServer(client);
     },
     CanvasSet(state, Canvas: HTMLCanvasElement){
-      state.canvas = Canvas;
-      state.context = Canvas.getContext("2d");
-      state.map = new GameMap(state.context, 30000, 30000, "/assets/imgs/map_1.png")
+      state.uGame.Canvas = Canvas;
+      state.uGame.Map = new GameMap(state.uGame.Context, 30000, 30000, "/assets/imgs/map_1.png");
+      state.uGame.Map.image.onload = () => {
+        if (state.uGame.Map)state.uGame.Map.isLoaded = true;
+      }
     },
     PlayerJoin(state, Client: Client){
-      state.clients.set(Client.username, Client);
+      state.uGame.Clients.set(Client.username, Client);
     },
     PlayerLeave(state, ClientUsername: string){
-      state.clients.delete(ClientUsername);
+      state.uGame.Clients.delete(ClientUsername);
     },
     SelfRefresh(state, Client: uGameClient.Client) {
-      if (state.client && state.client.Character && Client.Character)state.client.Refresh(Client);
+      state.uGame.Client?.Refresh(Client);
     },
     PlayerRefresh(state, Client: uGameClient.Client) {
-      if (state.clients.has(Client.username))state.clients.get(Client.username)?.Refresh(Client);
+      state.uGame.Clients.get(Client.username)?.Refresh(Client);
     }
   },
   actions: {
     ConnectToServer(state, authToken: string = process.env.VUE_APP_TOKEN) {
-      this.state.socket = io((process.env.VUE_APP_SOCKET_URL || "http://localhost") + ":" + (process.env.VUE_APP_SOCKET_PORT || "669"), {
+      this.state.uGame.Socket = io((process.env.VUE_APP_SOCKET_URL || "http://localhost") + ":" + (process.env.VUE_APP_SOCKET_PORT || "669"), {
         auth: {
           token: authToken
         }
       });
-      this.state.socket.on('connect', () => import(`@/events/on.connect`).then(event => event.default(this.state.socket as Socket)));
-      this.state.socket.on('disconnect', () => import(`@/events/on.disconnect`).then(event => event.default(this.state.socket as Socket)));
-      this.state.socket.on('welcome', (data) => import(`@/events/on.welcome`).then(event => event.default(this.state.socket as Socket, data)));
-      this.state.socket.on('welcome-back', (data) => import(`@/events/on.welcome`).then(event => event.default(this.state.socket as Socket, data)));
-      this.state.socket.on('kick-reason', (data) => import(`@/events/on.kick-reason`).then(event => event.default(this.state.socket as Socket, data)));
+      this.state.uGame.Socket.on('connect', () => import(`@/events/on.connect`).then(event => event.default(this.state.uGame.Socket as Socket)));
+      this.state.uGame.Socket.on('disconnect', () => import(`@/events/on.disconnect`).then(event => event.default(this.state.uGame.Socket as Socket)));
+      this.state.uGame.Socket.on('welcome', (data) => import(`@/events/on.welcome`).then(event => event.default(this.state.uGame.Socket as Socket, data)));
+      this.state.uGame.Socket.on('welcome-back', (data) => import(`@/events/on.welcome`).then(event => event.default(this.state.uGame.Socket as Socket, data)));
+      this.state.uGame.Socket.on('kick-reason', (data) => import(`@/events/on.kick-reason`).then(event => event.default(this.state.uGame.Socket as Socket, data)));
     },
     async AttachEvents() {
-      if (!this.state.socket)return;
-      this.state.socket.on('player-join', (data) => import(`@/events/on.player-join`).then(event => event.default(this.state.socket as Socket, data)));
-      this.state.socket.on('player-refresh', (data) => import(`@/events/on.player-refresh`).then(event => event.default(this.state.socket as Socket, data)));
-      this.state.socket.on('players-online', (data) => import(`@/events/on.players-online`).then(event => event.default(this.state.socket as Socket, data)));
+      this.state.uGame.Socket.on('player-join', (data) => import(`@/events/on.player-join`).then(event => event.default(this.state.uGame.Socket as Socket, data)));
+      this.state.uGame.Socket.on('player-leave', (data) => import(`@/events/on.player-leave`).then(event => event.default(this.state.uGame.Socket as Socket, data)));
+      this.state.uGame.Socket.on('player-refresh', (data) => import(`@/events/on.player-refresh`).then(event => event.default(this.state.uGame.Socket as Socket, data)));
+      this.state.uGame.Socket.on('self-refresh', (data) => import(`@/events/on.self-refresh`).then(event => event.default(this.state.uGame.Socket as Socket, data)));
+      this.state.uGame.Socket.on('players-online', (data) => import(`@/events/on.players-online`).then(event => event.default(this.state.uGame.Socket as Socket, data)));
     },
     async PlayerRefresh() {
-      if (!this.state.socket || !this.state.client || !this.state.client.Character)return;
-      this.state.socket.emit('player-refresh', this.state.client.ServerVersion);
+      if (!this.state.uGame.Client)return;
+      this.state.uGame.Socket.emit('player-refresh', this.state.uGame.Client.ServerVersion);
     }
   },
   modules: {

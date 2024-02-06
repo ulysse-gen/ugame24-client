@@ -11,7 +11,6 @@
 </template>
   
 <script lang="ts">
-import Vector2D from '@/assets/classes/Vector2D';
 import store from '@/store';
 import _ from 'lodash';
 import { defineComponent } from 'vue';
@@ -20,33 +19,38 @@ export default defineComponent({
   name: 'GameView',
   async mounted() {
       store.commit("CanvasSet", document.getElementById("GameCanvas"));
-      if (store.state.map)store.state.map.image.onload = () => {
-        if (!store.state.map)return;
-        store.state.map.isLoaded = true;
-      }
       this.Tick();
+  },
+  computed: {
+    uGame: () => store.state.uGame
   },
   methods: {
     Tick() {
-      if (!store.state.canvas || !store.state.context)return;
-      store.state.canvas.height = window.innerHeight;
-      store.state.canvas.width = window.innerWidth;
-      store.state.context.save();
-      if (store.state.client && store.state.client.Character)store.state.context.translate((store.state.canvas.width/2-store.state.client.Character.position.x) - store.state.client.Character.DisplayCharacter.size.x/2, (store.state.canvas.height/2-store.state.client.Character.position.y) - store.state.client.Character.DisplayCharacter.size.y/2);
-      store.state.context.clearRect(0, 0, store.state.canvas.width, store.state.canvas.height);
+      if (!this.uGame.Canvas || !this.uGame.Context)return;
+      this.uGame.Canvas.height = window.innerHeight;
+      this.uGame.Canvas.width = window.innerWidth;
+      this.uGame.Context.save();
 
-      store.state.context.imageSmoothingEnabled = false;
+      if (this.uGame.Client && this.uGame.Client.Character) {
+        this.uGame.Context.translate((this.uGame.Canvas.width/2-this.uGame.Client.Character.position.x) - this.uGame.Client.Character.DisplayCharacter.size.x/2, (this.uGame.Canvas.height/2-this.uGame.Client.Character.position.y) - this.uGame.Client.Character.DisplayCharacter.size.y/2);
+      }
 
-      if (store.state.map && store.state.map.isLoaded)store.state.map.Draw(); 
-      store.state.clients.forEach(otherPlayer => {
-        if (!otherPlayer.Character || !otherPlayer.Character.DisplayCharacter || !otherPlayer.Character.DisplayCharacter.isLoaded || !store.state.context)return;
-          store.state.context.font = "20px Arial";
-          store.state.context.fillStyle = 'black';
-          store.state.context.textAlign = "center";
-          store.state.context.fillText(otherPlayer.pseudo, otherPlayer.Character.position.x+(otherPlayer.Character.size.x/2), otherPlayer.Character.position.y-20);
-          otherPlayer.Character.Tick();
-      });
-      if (store.state.client && store.state.client.Character && store.state.client.Character.DisplayCharacter && store.state.client.Character.DisplayCharacter.isLoaded)store.state.client.Character.Tick();
+      this.uGame.Context.clearRect(0, 0, this.uGame.Canvas.width, this.uGame.Canvas.height);
+
+      this.uGame.Context.imageSmoothingEnabled = false;
+
+      if (this.uGame.Map && this.uGame.Map.isLoaded)this.uGame.Map.Draw();
+
+      this.uGame.Clients.forEach(otherPlayer => {
+        if (!otherPlayer.Character || !otherPlayer.Character.DisplayCharacter || !otherPlayer.Character.DisplayCharacter.isLoaded || !this.uGame.Context || (this.uGame.Client && (otherPlayer.username == this.uGame.Client.username)))return;
+        this.uGame.Context.font = "20px Arial";
+        this.uGame.Context.fillStyle = 'black';
+        this.uGame.Context.textAlign = "center";
+        this.uGame.Context.fillText(otherPlayer.pseudo, otherPlayer.Character.position.x+(otherPlayer.Character.size.x/2), otherPlayer.Character.position.y-20);
+        otherPlayer.Character.Tick();
+      })
+
+      if (this.uGame.Client && this.uGame.Client.Character && this.uGame.Client.Character.DisplayCharacter && this.uGame.Client.Character.DisplayCharacter.isLoaded)this.uGame.Client.Character.Tick();
       setTimeout(this.Tick.bind(this), 16.6);
     }
   }
@@ -61,26 +65,26 @@ var shiftKey = [16]; // default Space
 document.addEventListener('keydown',press)
 function press(e: any){
     //if (typing)return;
-    if (!store.state.client || !store.state.client.Character)return;
-    if (shiftKey.includes(e.keyCode))store.state.client.Character.Movement.dash = true;
-    if (moveUp.includes(e.keyCode))store.state.client.Character.Movement.up = true;
-    if (moveRight.includes(e.keyCode))store.state.client.Character.Movement.right = true;
-    if (moveDown.includes(e.keyCode))store.state.client.Character.Movement.down = true;
-    if (moveLeft.includes(e.keyCode))store.state.client.Character.Movement.left = true;
+    if (!store.state.uGame.Client || !store.state.uGame.Client.Character)return
+    if (shiftKey.includes(e.keyCode))store.state.uGame.Client.Character.Movement.dash = true;
+    if (moveUp.includes(e.keyCode))store.state.uGame.Client.Character.Movement.up = true;
+    if (moveRight.includes(e.keyCode))store.state.uGame.Client.Character.Movement.right = true;
+    if (moveDown.includes(e.keyCode))store.state.uGame.Client.Character.Movement.down = true;
+    if (moveLeft.includes(e.keyCode))store.state.uGame.Client.Character.Movement.left = true;
 }
 document.addEventListener('keyup',release)
 function release(e: any){
     //if (typing)return;
-    if (!store.state.client || !store.state.client.Character)return;
-    if (shiftKey.includes(e.keyCode))store.state.client.Character.Movement.dash = false;
-    if (moveUp.includes(e.keyCode))store.state.client.Character.Movement.up = false;
-    if (moveRight.includes(e.keyCode))store.state.client.Character.Movement.right = false;
-    if (moveDown.includes(e.keyCode))store.state.client.Character.Movement.down = false;
-    if (moveLeft.includes(e.keyCode))store.state.client.Character.Movement.left = false;
+    if (!store.state.uGame.Client || !store.state.uGame.Client.Character)return;
+    if (shiftKey.includes(e.keyCode))store.state.uGame.Client.Character.Movement.dash = false;
+    if (moveUp.includes(e.keyCode))store.state.uGame.Client.Character.Movement.up = false;
+    if (moveRight.includes(e.keyCode))store.state.uGame.Client.Character.Movement.right = false;
+    if (moveDown.includes(e.keyCode))store.state.uGame.Client.Character.Movement.down = false;
+    if (moveLeft.includes(e.keyCode))store.state.uGame.Client.Character.Movement.left = false;
 }
 window.addEventListener("blur", () => {
-    if (!store.state.client || !store.state.client.Character)return;
-    _.mapValues(store.state.client.Character.Movement, val=>false);
+    if (!store.state.uGame.Client || !store.state.uGame.Client.Character)return;
+    _.mapValues(store.state.uGame.Client.Character.Movement, val=>false);
 });
 </script>
   

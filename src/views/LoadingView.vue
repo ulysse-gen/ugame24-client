@@ -6,7 +6,6 @@
 </template>
   
 <script lang="ts">
-  import store from '@/store';
 import { defineComponent } from 'vue';
 import { mapGetters } from 'vuex';
   

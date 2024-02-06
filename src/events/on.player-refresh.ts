@@ -9,6 +9,6 @@ export default async function PlayerRefresh(socket: Socket, Client: uGameClient.
 }
 
 async function RefreshPlayer(socket: Socket, Client: uGameClient.Client){
-    if (Client.username == store.state.client?.username)return;
+    if (Client.username == store.state.uGame.Client?.username)return;
     store.commit('PlayerRefresh', Client);
 }

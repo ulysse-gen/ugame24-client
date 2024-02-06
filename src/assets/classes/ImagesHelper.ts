@@ -24,8 +24,9 @@ export class ImageHelper {
         this.image = new Image(width, height);
         this.image.src = url;
         this.isLoaded = false;
-        this.image.onload = () => {
+        this.image.onload = async () => {
             this.isLoaded = true;
+            return this;
         };
     }
 
@@ -44,7 +45,7 @@ export class ImageHelper {
 /**
  * Map
  */
-export default class Map extends ImageHelper {
+export default class DisplayMap extends ImageHelper {
     /**
      * Creation de la Map
      * @param {CanvasRenderingContext2D} context 2D canvas context to draw the map on 

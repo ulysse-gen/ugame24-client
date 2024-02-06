@@ -58,7 +58,7 @@ export default class Character {
         this.imgUrl = Character.imgUrl;
         this.position.set(Character.position);
         this.size.set(Character.size);
-        this.DisplayCharacter = new DisplayCharacter(this, store.state.context, this.size.x, this.size.y, this.imgUrl);
+        this.DisplayCharacter = new DisplayCharacter(this, store.state.uGame.Context, this.size.x, this.size.y, this.imgUrl);
         return this;
     }
 
@@ -69,9 +69,9 @@ export default class Character {
         if (this.Movement.left)this.Velocity.x -= 1;
         if (this.Movement.up)this.Velocity.y -= 1;
         if (this.Movement.down)this.Velocity.y += 1;
-        if (this.Movement.dash)this.Velocity = this.Velocity.multiply(1.2);
+        if (this.Movement.dash)this.Velocity = this.Velocity.multiply(4);
         this.position = this.position.add(this.Velocity);
-        if (!this.position.equal(this.PreviousPosition))store.dispatch("PlayerRefresh");
+        store.dispatch("PlayerRefresh");
         this.PreviousPosition = this.position.Values;
     }
 }

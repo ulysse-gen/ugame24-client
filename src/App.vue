@@ -6,7 +6,6 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import store from './store';
 import GameView from './views/GameView.vue';
 import LoginView from './views/LoginView.vue';
 import LoadingView from './views/LoadingView.vue';
