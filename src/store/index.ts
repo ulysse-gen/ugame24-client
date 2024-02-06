@@ -7,12 +7,13 @@ import Character from '@/assets/classes/Character'
 
 export default createStore({
   state: {
-    socket: null as Socket | null,
-    client: null as Client | null,
+    socket: undefined as Socket | undefined,
+    client: undefined as Client | undefined,
     clients: new Map as Map<string, Client>,
     canvas: null as null | HTMLCanvasElement,
     context: null as null | CanvasRenderingContext2D,
-    map: null as null | GameMap
+    map: null as null | GameMap,
+    connected: false
   },
   getters: {
     mapLoaded(state) {
@@ -22,10 +23,18 @@ export default createStore({
       return state.client instanceof Client;
     },
     connected(state) {
-      return (state.socket && state.socket.connected == true);
+      return state.connected
     }
   },
   mutations: {
+    Disconnected(state) {
+      state.connected = false;
+      state.clients.clear();
+    },
+    Connected(state) {
+      if (!state.socket)return;
+      state.connected = true;
+    },
     ClientSet(state, client: uGameClient.SelfClient) {
       state.client = new Client().FromServer(client);
     },
@@ -36,6 +45,9 @@ export default createStore({
     },
     PlayerJoin(state, Client: Client){
       state.clients.set(Client.username, Client);
+    },
+    PlayerLeave(state, ClientUsername: string){
+      state.clients.delete(ClientUsername);
     },
     SelfRefresh(state, Client: uGameClient.Client) {
       if (state.client && state.client.Character && Client.Character)state.client.Refresh(Client);
@@ -51,6 +63,8 @@ export default createStore({
           token: authToken
         }
       });
+      this.state.socket.on('connect', () => import(`@/events/on.connect`).then(event => event.default(this.state.socket as Socket)));
+      this.state.socket.on('disconnect', () => import(`@/events/on.disconnect`).then(event => event.default(this.state.socket as Socket)));
       this.state.socket.on('welcome', (data) => import(`@/events/on.welcome`).then(event => event.default(this.state.socket as Socket, data)));
       this.state.socket.on('welcome-back', (data) => import(`@/events/on.welcome`).then(event => event.default(this.state.socket as Socket, data)));
       this.state.socket.on('kick-reason', (data) => import(`@/events/on.kick-reason`).then(event => event.default(this.state.socket as Socket, data)));

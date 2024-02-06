@@ -51,7 +51,7 @@ export default class Character {
     }
 
     get ServerVersion() {
-        return _.mapValues(_.omit(this, ["Client", "DisplayCharacter", "Velocity", "Speed"]), (el: any) => (el && el.ServerVersion) ? el.ServerVersion : el)
+        return _.mapValues(_.omit(this, ["Client", "DisplayCharacter", "size", "PreviousPosition", "Movement", "Friction", "SpeedModifier"]), (el: any) => (el && el.ServerVersion) ? el.ServerVersion : el)
     }
 
     FromServer(Character: uGameClient.Character) {

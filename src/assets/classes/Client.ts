@@ -28,6 +28,7 @@ export default class Client {
 
         if (!this.Character || !Client.Character)return;
         this.Character.position.set(Client.Character.position);
+        //this.Character.Velocity.set(Client.Character.velocity);
         this.Character.imgUrl = Client.Character.imgUrl;
         this.Character.size.set(Client.Character.size);
     }

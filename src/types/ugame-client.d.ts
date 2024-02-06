@@ -28,11 +28,13 @@ export namespace uGameClient {
         Spell2?: Spell;
         Spell3?: Spell;
     
+        velocity: Vector2D;
         position: Vector2D;
         size: Vector2D;
     }
 
     interface Character {
+        velocity: Vector2D;
         imgUrl: string;
     
         position: Vector2D;

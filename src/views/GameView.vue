@@ -38,15 +38,15 @@ export default defineComponent({
       store.state.context.imageSmoothingEnabled = false;
 
       if (store.state.map && store.state.map.isLoaded)store.state.map.Draw(); 
-      if (store.state.client && store.state.client.Character && store.state.client.Character.DisplayCharacter && store.state.client.Character.DisplayCharacter.isLoaded)store.state.client.Character.Tick();
       store.state.clients.forEach(otherPlayer => {
         if (!otherPlayer.Character || !otherPlayer.Character.DisplayCharacter || !otherPlayer.Character.DisplayCharacter.isLoaded || !store.state.context)return;
           store.state.context.font = "20px Arial";
           store.state.context.fillStyle = 'black';
           store.state.context.textAlign = "center";
           store.state.context.fillText(otherPlayer.pseudo, otherPlayer.Character.position.x+(otherPlayer.Character.size.x/2), otherPlayer.Character.position.y-20);
-          otherPlayer.Character.DisplayCharacter.Draw();
+          otherPlayer.Character.Tick();
       });
+      if (store.state.client && store.state.client.Character && store.state.client.Character.DisplayCharacter && store.state.client.Character.DisplayCharacter.isLoaded)store.state.client.Character.Tick();
       setTimeout(this.Tick.bind(this), 16.6);
     }
   }

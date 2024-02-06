@@ -1,6 +1,7 @@
 <template>
     <div class="loading" :class="{'login-modal-visible': !loggedIn}">
         <img src="/assets/imgs/mage.gif" alt="logo">
+        <h1 class="status">{{ (!connected && loggedIn) ? `You are currently disconnected from the server.` : `` }}</h1>
     </div>
 </template>
   
@@ -13,7 +14,7 @@ import { mapGetters } from 'vuex';
     name: 'LoadingView',
     computed: {
     ...mapGetters([
-      "loggedIn"
+      "loggedIn", "connected"
     ])
     }
   });
@@ -37,6 +38,11 @@ import { mapGetters } from 'vuex';
 
   &.login-modal-visible {
     backdrop-filter: blur(5px);
+  }
+
+  .status {
+    font-family: futura;
+    font-size: 1.2rem;
   }
 
   img {
